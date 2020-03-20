@@ -40,7 +40,7 @@ npx path/to/sigma-air-manager-exporter
 The exporter provides the values per installed digital current meter as follows
 
 ```
-http://{YourExporterServer}:969x/values
+http://{YourExporterServer}:9693/values
 
-e.g. http://localhost:969x/values
+e.g. http://localhost:9693/values
 ```

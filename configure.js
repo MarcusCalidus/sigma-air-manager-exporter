@@ -65,7 +65,7 @@ function doPromptPassword() {
 }
 
 
-var newConfig = ['export const serverPort=9689;'];
+var newConfig = ['export const serverPort=9693;'];
 
 if (fs.existsSync(path.join(__dirname, 'src', 'config.ts'))) {
     promptConfig.ask(
