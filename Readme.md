@@ -43,4 +43,7 @@ The exporter provides the values per installed digital current meter as follows
 http://{YourExporterServer}:9693/values
 
 e.g. http://localhost:9693/values
+
+Raw JSON Data like so: http://{YourExporterServer}:9693/currentValues
 ```
+
