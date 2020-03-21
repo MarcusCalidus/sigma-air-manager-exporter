@@ -40,9 +40,9 @@ app.get('/values', (req, res) => {
     ));
 
     result.push(...sigmaAirManagerBackend.renderAsPrometheusGauge(
-        valuePrefix + 'currentNetPressure',
+        valuePrefix + 'current_net_pressure',
         'Current pressure in Pascal',
-        ['si/Netzdruck', 'current_net_pressure', 'value']
+        ['si/Netzdruck', 'currentNetPressure', 'value']
     ));
 
     res.end(result.join('\n'));
