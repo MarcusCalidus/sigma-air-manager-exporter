@@ -5,7 +5,7 @@ import {SigmaAirManagerBackend} from "./sigma-air-manager-backend";
 const app = express();
 const sigmaAirManagerBackend = new SigmaAirManagerBackend();
 
-app.get('/currentValues', (req, res) => {
+app.get('/valuesJson', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(sigmaAirManagerBackend.currentValues));
 });
@@ -42,7 +42,7 @@ app.get('/values', (req, res) => {
     result.push(...sigmaAirManagerBackend.renderAsPrometheusGauge(
         valuePrefix + 'currentNetPressure',
         'Current pressure in Pascal',
-        ['si/Netzdruck', 'currentNetPressure', 'value']
+        ['si/Netzdruck', 'current_net_pressure', 'value']
     ));
 
     res.end(result.join('\n'));

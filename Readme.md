@@ -44,6 +44,15 @@ http://{YourExporterServer}:9693/values
 
 e.g. http://localhost:9693/values
 
-Raw JSON Data like so: http://{YourExporterServer}:9693/currentValues
+Raw JSON Data like so: http://{YourExporterServer}:9693/valuesJson
 ```
 
+## Availabe Values (WIP)
+
+| Value                                 | Description                               | Unit      |
+| :-------------                        |:-------------                             |:-----     |
+| sigma_airman_terminal_temp_cpu        | CPU temperature of SAM 4.0 terminal       | Kelvin    |
+| sigma_airman_terminal_temp_board      | Board temperature of SAM 4.0 terminal     | Kelvin    |
+| sigma_airman_terminal_temp_display    | Display temperature of SAM 4.0 terminal   | Kelvin    |
+| sigma_airman_terminal_voltage         | Supply voltage of SAM 4.0 terminal        | Volt      |
+| sigma_airman_current_net_pressure     | Current pressure                          | Pascal    |
