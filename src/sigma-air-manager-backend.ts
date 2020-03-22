@@ -315,25 +315,29 @@ export class SigmaAirManagerBackend {
         );
     }
 
-    renderAsPrometheusGauge(name: string, help: string, valuePath: string[]): string[] {
+    renderAsPrometheusGauge(name: string, help: string, valuePath: string[], valueTransfomerFn?: (rawValue: any) => string): string[] {
         let object = this.currentValues;
 
         valuePath.forEach(
             value => {
-                if (object) {
+                if (typeof object !== 'undefined') {
                     object = object[value];
                 }
             }
         );
 
-        if (!object) {
+        if (typeof object === 'undefined') {
             return [];
         }
 
         let result: string[] = [];
         result.push(`# HELP ${name} ${help}`);
         result.push(`# TYPE ${name} gauge`);
-        result.push(name + ' ' + object.toString());
+        if (!!valueTransfomerFn) {
+            result.push(name + ' ' + valueTransfomerFn(object))
+        } else {
+            result.push(name + ' ' + object.toString())
+        }
         return result;
     }
 }

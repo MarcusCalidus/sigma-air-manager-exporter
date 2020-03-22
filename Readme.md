@@ -51,8 +51,10 @@ Raw JSON Data like so: http://{YourExporterServer}:9693/valuesJson
 
 | Value                                 | Description                               | Unit      |
 | :-------------                        |:-------------                             |:-----     |
-| sigma_airman_terminal_temp_cpu        | CPU temperature of SAM 4.0 terminal       | Kelvin    |
-| sigma_airman_terminal_temp_board      | Board temperature of SAM 4.0 terminal     | Kelvin    |
-| sigma_airman_terminal_temp_display    | Display temperature of SAM 4.0 terminal   | Kelvin    |
-| sigma_airman_terminal_voltage         | Supply voltage of SAM 4.0 terminal        | Volt      |
-| sigma_airman_current_net_pressure     | Current pressure                          | Pascal    |
+| sigma_airman_sysmon_temp_cpu          | CPU temperature of SAM 4.0 terminal       | Kelvin    |
+| sigma_airman_sysmon_temp_board        | Board temperature of SAM 4.0 terminal     | Kelvin    |
+| sigma_airman_sysmon_temp_display      | Display temperature of SAM 4.0 terminal   | Kelvin    |
+| sigma_airman_sysmon_voltage           | Supply voltage of SAM 4.0 terminal        | Volt      |
+| sigma_airman_current_net_pressure     | Current network pressure                  | Pascal    |
+| sigma_airman_consumption              | Compressed air consumption                | m³/s      |
+| sigma_airman_fad                      | Volumetric flow rate (FAD)                | m³/s      |
