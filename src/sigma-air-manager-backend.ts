@@ -133,8 +133,8 @@ export class SigmaAirManagerBackend {
     }
 
     handleWebSocketMessage(ws: WebSocket, message: string) {
+        this.currentValues['internal/last_timestamp'] = Date.now();
         const decodedMessage = this.decodeWebSocketMessage(message);
-
         switch (decodedMessage.returnCode) {
             case 3 :
                 this.sendWebSocketInit(ws);
