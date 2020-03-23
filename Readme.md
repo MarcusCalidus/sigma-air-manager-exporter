@@ -51,13 +51,13 @@ Raw JSON Data like so: http://{YourExporterServer}:9693/valuesJson
 
 | Value                                 | Description                               | Unit              |
 | :-------------                        |:-------------                             |:-----             |
-| sigma_airman_is_alive                 | Checks the timestamp of the last websocket communication. Will render 0 if last message is older than 1 minute.       | Boolean 0 or 1    |
-| sigma_airman_is_sync                  | Checks the timestamp of the last sysmon message. Will render 0 if timestamp is older or newer than 1 minute. You might want to check the Date/Time settings on server and terminal. | Boolean 0 or 1    |
-| sigma_airman_sysmon_has_iot_net_conflict | Has Iot Network Conflict               | Boolean 0 or 1    |
-| sigma_airman_sysmon_temp_cpu          | CPU temperature of SAM 4.0 terminal       | Kelvin            |
-| sigma_airman_sysmon_temp_board        | Board temperature of SAM 4.0 terminal     | Kelvin            |
-| sigma_airman_sysmon_temp_display      | Display temperature of SAM 4.0 terminal   | Kelvin            |
-| sigma_airman_sysmon_voltage           | Supply voltage of SAM 4.0 terminal        | Volt              |
-| sigma_airman_current_net_pressure     | Current network pressure                  | Pascal            |
-| sigma_airman_consumption              | Compressed air consumption                | m³/s              |
-| sigma_airman_fad                      | Volumetric flow rate (FAD)                | m³/s              |
+| sigma_airman_is_alive_info                 | Checks the timestamp of the last websocket communication. Will render 0 if last message is older than 1 minute.       | Boolean 0 or 1    |
+| sigma_airman_is_sync_info                  | Checks the timestamp of the last sysmon message. Will render 0 if timestamp is older or newer than 1 minute. You might want to check the Date/Time settings on server and terminal. | Boolean 0 or 1    |
+| sigma_airman_sysmon_has_iot_net_conflict_info | Has Iot Network Conflict               | Boolean 0 or 1    |
+| sigma_airman_sysmon_temp_cpu_celsius          | CPU temperature of SAM 4.0 terminal       | Celcius            |
+| sigma_airman_sysmon_temp_board_celsius        | Board temperature of SAM 4.0 terminal     | Celcius            |
+| sigma_airman_sysmon_temp_display_celsius      | Display temperature of SAM 4.0 terminal   | Celcius            |
+| sigma_airman_sysmon_terminal_power_volts           | Supply voltage of SAM 4.0 terminal        | Volts              |
+| sigma_airman_current_net_pressure_pascal     | Current network pressure                  | Pascal            |
+| sigma_airman_consumption_cubicmetersperhour              | Compressed air consumption                | m³/h              |
+| sigma_airman_fad_cubicmetersperhour                      | Volumetric flow rate (FAD)                | m³/h              |

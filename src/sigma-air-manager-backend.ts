@@ -315,28 +315,47 @@ export class SigmaAirManagerBackend {
         );
     }
 
-    renderAsPrometheusGauge(name: string, help: string, valuePath: string[], valueTransfomerFn?: (rawValue: any) => string): string[] {
+    renderAsPrometheusGauge(
+        name: string,
+        help: string,
+        valuePath: (string|number)[],
+        valueTransfomerFn?: (rawValue: any) => string,
+        labels?: any): string[] {
         let object = this.currentValues;
 
         valuePath.forEach(
             value => {
-                if (typeof object !== 'undefined') {
+                if (typeof object !== 'undefined' && object !== null) {
                     object = object[value];
                 }
             }
         );
 
-        if (typeof object === 'undefined') {
+        if (typeof object === 'undefined' || object === null) {
             return [];
         }
 
         let result: string[] = [];
-        result.push(`# HELP ${name} ${help}`);
-        result.push(`# TYPE ${name} gauge`);
+        if (help) {
+            result.push(`# HELP ${name} ${help}`);
+            result.push(`# TYPE ${name} gauge`);
+        }
+
+        let labelsStr = '';
+        if (labels) {
+            let labelArray: string[] = [];
+            for (let key in labels) {
+                if (labels.hasOwnProperty(key)) {
+                    labelArray.push(key + '="' + escape(labels[key]) + '"')
+                }
+            }
+            labelsStr = '{'+ labelArray.join(';') + '}';
+        }
+
         if (!!valueTransfomerFn) {
-            result.push(name + ' ' + valueTransfomerFn(object))
+            result.push(name + labelsStr + ' ' + valueTransfomerFn(object))
         } else {
-            result.push(name + ' ' + object.toString())
+            result.push(name + labelsStr + ' ' + object.toString())
         }
         return result;
     }
