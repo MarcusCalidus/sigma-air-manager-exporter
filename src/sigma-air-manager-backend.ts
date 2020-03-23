@@ -335,7 +335,7 @@ export class SigmaAirManagerBackend {
             return [];
         }
 
-        let result: string[] = [];
+        const result: string[] = [];
         if (help) {
             result.push(`# HELP ${name} ${help}`);
             result.push(`# TYPE ${name} gauge`);
@@ -343,8 +343,8 @@ export class SigmaAirManagerBackend {
 
         let labelsStr = '';
         if (labels) {
-            let labelArray: string[] = [];
-            for (let key in labels) {
+            const labelArray: string[] = [];
+            for (const key in labels) {
                 if (labels.hasOwnProperty(key)) {
                     labelArray.push(key + '="' + escape(labels[key]) + '"')
                 }
