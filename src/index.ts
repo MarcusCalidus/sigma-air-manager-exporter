@@ -2,7 +2,6 @@ import express from 'express';
 import {serverPort} from './config';
 import {SigmaAirManagerBackend} from "./sigma-air-manager-backend";
 import moment from 'moment';
-import {hasOwnProperty} from "tslint/lib/utils";
 
 const app = express();
 const sigmaAirManagerBackend = new SigmaAirManagerBackend();
@@ -96,43 +95,43 @@ function renderCompressorValues(result: string[], valuePrefix: string) {
     const maintenanceTimerArray = [];
     const powerArray = [];
 
-    if ((sigmaAirManagerBackend.currentValues['hull/algoImage'] || {}).compressors &&
-        (sigmaAirManagerBackend.currentValues['si/getConfiguration'] || {}).result) {
+    if ((sigmaAirManagerBackend.currentValues['si/currentProcessImage'] || {}).image) {
         let firstRun = true;
-        for (const key in (sigmaAirManagerBackend.currentValues['hull/algoImage'] || {}).compressors) {
-            if (sigmaAirManagerBackend.currentValues['hull/algoImage'].compressors.hasOwnProperty(key)) {
+        for (const key in sigmaAirManagerBackend.currentValues['si/currentProcessImage'].image['AIR_PRODUCER']) {
+            if (sigmaAirManagerBackend.currentValues['si/currentProcessImage'].image['AIR_PRODUCER'].hasOwnProperty(key)) {
                 try {
                     const compressorName = sigmaAirManagerBackend
                         .currentValues['si/getConfiguration']
-                        .result.AIR_PRODUCER[parseInt(key, 10) + 1]
+                        .result.AIR_PRODUCER[key]
                         .parameters.modelShortName;
-                    if (sigmaAirManagerBackend.currentValues['hull/algoImage'].compressors.hasOwnProperty(key)) {
 
-                        rpmArray.push(...sigmaAirManagerBackend.renderAsPrometheusGauge(
-                            valuePrefix + 'compressor_rpm',
-                            firstRun ? 'Compressor revolutions per minute' : null,
-                            ['hull/algoImage', 'compressors', parseInt(key, 10), 'currentState', 'rpm'],
-                            null,
-                            {compressor: compressorName}
-                        ));
+                    rpmArray.push(...sigmaAirManagerBackend.renderAsPrometheusGauge(
+                        valuePrefix + 'compressor_rpm',
+                        firstRun ? 'Compressor revolutions per minute' : null,
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_rpmCompressorMotor'],
+                        (value) => value.value,
+                        (value) => value.valid,
+                        {compressor: compressorName}
+                    ));
 
-                        maintenanceTimerArray.push(...sigmaAirManagerBackend.renderAsPrometheusGauge(
-                            valuePrefix + 'compressor_maintenance_timer_seconds',
-                            firstRun ? 'Maintenance timer in seconds' : null,
-                            ['hull/algoImage', 'compressors', parseInt(key, 10), 'currentState', 'maintenanceTimer'],
-                            null,
-                            {compressor: compressorName}
-                        ));
+                    maintenanceTimerArray.push(...sigmaAirManagerBackend.renderAsPrometheusGauge(
+                        valuePrefix + 'compressor_maintenance_timer_seconds',
+                        firstRun ? 'Maintenance timer in seconds' : null,
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'states', 'SAM2_remaingTimeNextMaintenance'],
+                        (value) => value.value,
+                        (value) => value.valid,
+                        {compressor: compressorName}
+                    ));
 
-                        powerArray.push(...sigmaAirManagerBackend.renderAsPrometheusGauge(
-                            valuePrefix + 'compressor_power_watts',
-                            firstRun ? 'Power in Watt' : null,
-                            ['hull/algoImage', 'compressors', parseInt(key, 10), 'currentState', 'P'],
-                            null,
-                            {compressor: compressorName}
-                        ));
+                    powerArray.push(...sigmaAirManagerBackend.renderAsPrometheusGauge(
+                        valuePrefix + 'compressor_power_watts',
+                        firstRun ? 'Power in Watt' : null,
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'states', 'SAM2_powerConsumption'],
+                        (value) => value.value,
+                        (value) => value.valid,
+                        {compressor: compressorName}
+                    ));
 
-                    }
                     firstRun = false;
                 } catch (e) {
                     console.error(e);

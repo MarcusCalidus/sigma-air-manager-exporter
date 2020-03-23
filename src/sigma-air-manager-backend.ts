@@ -3,8 +3,7 @@ import sha256 from "crypto-js/sha256";
 import * as querystring from "querystring";
 import * as http from "http";
 import {Observable} from 'rxjs';
-import WebSocket from "ws";
-import {ClientOptions} from "ws";
+import WebSocket, {ClientOptions} from "ws";
 import {sigmaAirManagerHost, sigmaAirManagerPassword, sigmaAirManagerPort, sigmaAirManagerUser} from "./config";
 import Timeout = NodeJS.Timeout;
 
@@ -30,6 +29,8 @@ export class SigmaAirManagerBackend {
     currentValues: any = {};
     private cookies: string[] = [];
     private heartbeat: Timeout;
+    private alive: Timeout;
+    private send2: Timeout;
 
     static syslogMessage(level: string = 'debug', message: string = 'Socket.IO upgrade to transport websocket', timestamp = Date.now()) {
         return [
@@ -64,6 +65,10 @@ export class SigmaAirManagerBackend {
         return ["hmiHeartbeat", Date.now()];
     }
 
+    static alive() {
+        return ["alive"];
+    }
+
     encodeWebSocketMessage(prefix: number, object?: any): string {
         return prefix.toString() + (
             object
@@ -86,9 +91,21 @@ export class SigmaAirManagerBackend {
         };
 
         if (result && result.object && result.object[0] === 'frommedi') {
-            result.parsed = {
-                metric: result.object[1].data.header.from,
-                data: JSON.parse(result.object[1].data.body)
+            let metricName = result.object[1].data.header.from;
+
+            if (metricName !== 'algo/debugImage'
+                && metricName !== 'anybus/inputImage'
+                && metricName !== 'hull/controlVector') {
+                const parsedBody = JSON.parse(result.object[1].data.body);
+
+                if (metricName === 'leds/ledstate') {
+                    metricName = metricName + ':' + parsedBody.name;
+                }
+
+                result.parsed = {
+                    metric: metricName,
+                    data: parsedBody
+                }
             }
         }
 
@@ -100,36 +117,27 @@ export class SigmaAirManagerBackend {
             () => ws.send(this.encodeWebSocketMessage(42, SigmaAirManagerBackend.heartbeat())),
             1000
         );
+        this.alive = setInterval(
+            () => ws.send(this.encodeWebSocketMessage(42, SigmaAirManagerBackend.alive())),
+            10000
+        );
+        this.send2 = setInterval(
+            () => ws.send(this.encodeWebSocketMessage(42, '2')),
+            10000
+        );
         ws.send(this.encodeWebSocketMessage(5));
         //   ws.send(this.encodeWebSocketMessage(42, SigmaAirManagerBackend.syslogMessage()));
         ws.send(this.encodeWebSocketMessage(42, SigmaAirManagerBackend.initReady()));
         ws.send(this.encodeWebSocketMessage(42, SigmaAirManagerBackend.joinRoom('HMI')));
         ws.send(this.encodeWebSocketMessage(42, SigmaAirManagerBackend.joinRoom('remoteHMI')));
+        ws.send(this.encodeWebSocketMessage(42, SigmaAirManagerBackend.joinRoom('si/currentProcessImage')));
 
-         ws.send(this.encodeWebSocketMessage(42,
-             SigmaAirManagerBackend.toMedi('', 'tm/getTexts', '"en_GB"', 1)));
-         ws.send(this.encodeWebSocketMessage(42,
-             SigmaAirManagerBackend.toMedi('', 'rm/getAllParameters', '""', 2)));
-         ws.send(this.encodeWebSocketMessage(42,
-             SigmaAirManagerBackend.toMedi('', 'hull/getAllParameters', '""', 3)));
-         ws.send(this.encodeWebSocketMessage(42,
-             SigmaAirManagerBackend.toMedi('', 'simulation/getAllParameters', '""', 4)));
-         ws.send(this.encodeWebSocketMessage(42,
-             SigmaAirManagerBackend.toMedi('', 'rm/getReportHistory', '""', 5)));
-         ws.send(this.encodeWebSocketMessage(42,
-             SigmaAirManagerBackend.toMedi('', 'hull/getCurrentState', '""', 6)));
-         ws.send(this.encodeWebSocketMessage(42,
-             SigmaAirManagerBackend.toMedi('', 'dr_ng/getAvailableIids', null, 7)));
-         ws.send(this.encodeWebSocketMessage(42,
-             SigmaAirManagerBackend.toMedi('', 'importer/getsdcardstate', '{}', 8)));
-         ws.send(this.encodeWebSocketMessage(42,
-             SigmaAirManagerBackend.toMedi('', 'si/getConfiguration', null, 9)));
-         ws.send(this.encodeWebSocketMessage(42,
-             SigmaAirManagerBackend.toMedi('', 'si/getConfiguration', null, 10)));
-         ws.send(this.encodeWebSocketMessage(42,
-             SigmaAirManagerBackend.toMedi('', 'sysmon/hasIotNetConflict', '""', 11)));
-         ws.send(this.encodeWebSocketMessage(42,
-             SigmaAirManagerBackend.toMedi('', 'exporter/getRsyncState', '""', 12)));
+        ws.send(this.encodeWebSocketMessage(42,
+            SigmaAirManagerBackend.toMedi('', 'sysmon/hasIotNetConflict', '""', 1)));
+        ws.send(this.encodeWebSocketMessage(42,
+            SigmaAirManagerBackend.toMedi('', 'importer/getsdcardstate', '{}', 2)));
+        ws.send(this.encodeWebSocketMessage(42,
+            SigmaAirManagerBackend.toMedi('', 'si/getConfiguration', null, 3)));
     }
 
     handleWebSocketMessage(ws: WebSocket, message: string) {
@@ -237,7 +245,7 @@ export class SigmaAirManagerBackend {
                             })
                     }
                 );
-                req.on('error',  (err) => {
+                req.on('error', (err) => {
                     subscriber.error(err);
                 });
                 req.end();
@@ -288,7 +296,7 @@ export class SigmaAirManagerBackend {
                             })
                     });
 
-                req.on('error',  (err) => {
+                req.on('error', (err) => {
                     subscriber.error(err);
                 });
 
@@ -318,8 +326,9 @@ export class SigmaAirManagerBackend {
     renderAsPrometheusGauge(
         name: string,
         help: string,
-        valuePath: (string|number)[],
+        valuePath: (string | number)[],
         valueTransfomerFn?: (rawValue: any) => string,
+        valueValidityCheckFn?: (rawValue: any) => boolean,
         labels?: any): string[] {
         let object = this.currentValues;
 
@@ -349,13 +358,15 @@ export class SigmaAirManagerBackend {
                     labelArray.push(key + '="' + escape(labels[key]) + '"')
                 }
             }
-            labelsStr = '{'+ labelArray.join(';') + '}';
+            labelsStr = '{' + labelArray.join(';') + '}';
         }
 
-        if (!!valueTransfomerFn) {
-            result.push(name + labelsStr + ' ' + valueTransfomerFn(object))
-        } else {
-            result.push(name + labelsStr + ' ' + object.toString())
+        if (!valueValidityCheckFn || valueValidityCheckFn(object)) {
+            if (!!valueTransfomerFn) {
+                result.push(name + labelsStr + ' ' + valueTransfomerFn(object))
+            } else {
+                result.push(name + labelsStr + ' ' + object.toString())
+            }
         }
         return result;
     }
