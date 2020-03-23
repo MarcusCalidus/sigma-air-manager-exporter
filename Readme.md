@@ -61,4 +61,6 @@ Raw JSON Data like so: http://{YourExporterServer}:9693/valuesJson
 | sigma_airman_current_net_pressure_pascal     | Current network pressure                  | Pascal            |
 | sigma_airman_consumption_cubicmetersperhour  | Compressed air consumption                | m³/h              |
 | sigma_airman_fad_cubicmetersperhour          | Volumetric flow rate (FAD)                | m³/h              |
-| sigma_airman_compressor_rpm{compressor=COMPRESSORNAME} | Volumetric flow rate (FAD)                | m³/h              |
+| sigma_airman_compressor_rpm{compressor=COMPRESSORNAME} | RPM of compressor motor                | RPM             |
+| sigma_airman_compressor_maintenance_timer_seconds{compressor=COMPRESSORNAME} | Time to next maintenance    | Seconds             |
+| sigma_airman_compressor_power_watts{compressor=COMPRESSORNAME} | Power consumption of cmpressor   | Watts             |
