@@ -194,7 +194,10 @@ export class SigmaAirManagerBackend {
         });
 
         ws.on('close', (code: number, data: string) => {
-            console.log('WebSocket closed', code, data)
+            console.log('WebSocket closed', code, data);
+            if (code !== 1000) {
+                this.initialize();
+            }
         })
     }
 
