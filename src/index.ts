@@ -114,8 +114,8 @@ function renderCompressorValues(result: string[], valuePrefix: string) {
 
     if ((sigmaAirManagerBackend.currentValues['si/currentProcessImage'] || {}).image) {
         let firstRun = true;
-        for (const key in sigmaAirManagerBackend.currentValues['si/currentProcessImage'].image['AIR_PRODUCER']) {
-            if (sigmaAirManagerBackend.currentValues['si/currentProcessImage'].image['AIR_PRODUCER'].hasOwnProperty(key)) {
+        for (const key in sigmaAirManagerBackend.currentValues['si/currentProcessImage'].image.AIR_PRODUCER) {
+            if (sigmaAirManagerBackend.currentValues['si/currentProcessImage'].image.AIR_PRODUCER.hasOwnProperty(key)) {
                 try {
                     const compressorName = sigmaAirManagerBackend
                         .currentValues['si/getConfiguration']
@@ -382,7 +382,7 @@ function renderCompressorValues(result: string[], valuePrefix: string) {
             }
         }
 
-        for (let key in arrays) {
+        for (const key in arrays) {
             if (arrays.hasOwnProperty(key)) {
                 result.push(...arrays[key])
             }
