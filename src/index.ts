@@ -89,33 +89,24 @@ function renderGlobalPressureFlow(result: string[], valuePrefix: string) {
     result.push(...sigmaAirManagerBackend.renderAsPrometheusGauge(
         valuePrefix + 'net_pressure_pascal',
         'Current network pressure in Pascal',
-        ['si/currentProcessImage', 'image', 'STATION_CONTROLLER', 1, 'outputs', 'SAM2_netPressure'],
+        ['si/Netzdruck', 'currentNetPressure'],
         (value) => value.value,
-        (value) => value.valid,
-    ));
-
-    result.push(...sigmaAirManagerBackend.renderAsPrometheusGauge(
-        valuePrefix + 'consumption_cubicmetersperhour',
-        'Compressed air consumption in Cubic metre / hour',
-        ['si/currentProcessImage', 'image', 'STATION_CONTROLLER', 1, 'states', 'SAM2_estimatedAirConsumption'],
-        (value) => CubicMetrePerMinuteToCubicMetrePerHourGaugeValue(value.value),
         (value) => value.valid,
     ));
 
     result.push(...sigmaAirManagerBackend.renderAsPrometheusGauge(
         valuePrefix + 'free_air_delivery_cubicmetersperhour',
         'Volumetric flow rate (FAD) in Cubic metre / hour',
-        ['si/currentProcessImage', 'image', 'STATION_CONTROLLER', 1, 'outputs', 'SAM2_freeAirDelivery'],
+        ['si/Netzdruck', 'freeAirDelivery'],
         (value) => CubicMetrePerMinuteToCubicMetrePerHourGaugeValue(value.value),
         (value) => value.valid,
     ));
 
     result.push(...sigmaAirManagerBackend.renderAsPrometheusGauge(
-        valuePrefix + 'free_air_delivery_cumulative_cubicmetersperhour',
-        'Volumetric flow rate (FAD) cumulative in Cubic metre / hour',
-        ['si/currentProcessImage', 'image', 'STATION_CONTROLLER', 1, 'outputs', 'SAM2_freeAirDeliveryCumulative'],
-        (value) => CubicMetrePerMinuteToCubicMetrePerHourGaugeValue(value.value),
-        (value) => value.valid,
+        valuePrefix + 'consumption_cubicmetersperhour',
+        'Compressed air consumption in Cubic metre / hour',
+        ['hull/algoImage', 'consumption', 'currentState', 'current'],
+        (value) => CubicMetrePerMinuteToCubicMetrePerHourGaugeValue(value)
     ));
 }
 
