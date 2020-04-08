@@ -416,7 +416,7 @@ app.get('/values', (req, res) => {
     renderGlobalPressureFlow(result, valuePrefix);
     renderCompressorValues(result, valuePrefix);
 
-    res.end(result.join('\n'));
+    res.end(result.join('\n') + '\n');
 });
 
 // start the Express server
