@@ -25,6 +25,11 @@ interface WebSocketMessage {
     parsed?: ParsedFromMediMessage;
 }
 
+interface ArraySearchToken {
+    attribute: string;
+    value: string;
+}
+
 export class SigmaAirManagerBackend {
     currentValues: any = {};
     private cookies: string[] = [];
@@ -329,7 +334,7 @@ export class SigmaAirManagerBackend {
     renderAsPrometheusGauge(
         name: string,
         help: string,
-        valuePath: (string | number)[],
+        valuePath: (string | number | ArraySearchToken)[],
         valueTransfomerFn?: (rawValue: any) => string,
         valueValidityCheckFn?: (rawValue: any) => boolean,
         labels?: any): string[] {
@@ -338,7 +343,13 @@ export class SigmaAirManagerBackend {
         valuePath.forEach(
             value => {
                 if (typeof object !== 'undefined' && object !== null) {
-                    object = object[value];
+                    if (typeof value === 'object' && Array.isArray(object)) {
+                        object = (object as any[]).find(
+                            element => element[(value as ArraySearchToken).attribute] === (value as ArraySearchToken).value
+                        );
+                    } else {
+                        object = object[value as string | number];
+                    }
                 }
             }
         );
