@@ -158,7 +158,13 @@ export class SigmaAirManagerBackend {
                 break;
             case 42:
                 if (decodedMessage.parsed) {
-                    this.currentValues[decodedMessage.parsed.metric] = decodedMessage.parsed.data;
+                    if (decodedMessage.parsed.metric === 'si/currentProcessImage') {
+                        if (decodedMessage.parsed.data.fullImg === true) {
+                            this.currentValues[decodedMessage.parsed.metric] = decodedMessage.parsed.data;
+                        }
+                    } else {
+                        this.currentValues[decodedMessage.parsed.metric] = decodedMessage.parsed.data;
+                    }
                 }
                 break;
             default:
