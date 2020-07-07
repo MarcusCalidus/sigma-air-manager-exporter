@@ -113,13 +113,10 @@ function renderGlobalPressureFlow(result: string[], valuePrefix: string) {
 function renderCompressorValues(result: string[], valuePrefix: string) {
     const arrays: any = {};
 
-    if ((!!sigmaAirManagerBackend.currentValues['si/currentProcessImage'])
-        && (!!sigmaAirManagerBackend.currentValues['si/getConfiguration'])) {
+    if ((sigmaAirManagerBackend.currentValues['si/currentProcessImage'] || {}).image) {
         let firstRun = true;
-
-        for (const key in sigmaAirManagerBackend.currentValues['si/getConfiguration'].result.AIR_PRODUCER) {
-            if (sigmaAirManagerBackend.currentValues['si/getConfiguration'].result.AIR_PRODUCER.hasOwnProperty(key)
-                && sigmaAirManagerBackend.currentValues['si/getConfiguration'].result.AIR_PRODUCER[key].parameters.isActive) {
+        for (const key in sigmaAirManagerBackend.currentValues['si/currentProcessImage'].image.AIR_PRODUCER) {
+            if (sigmaAirManagerBackend.currentValues['si/currentProcessImage'].image.AIR_PRODUCER.hasOwnProperty(key)) {
                 try {
                     const compressorName = sigmaAirManagerBackend
                         .currentValues['si/getConfiguration']
@@ -129,179 +126,107 @@ function renderCompressorValues(result: string[], valuePrefix: string) {
                     arrays.rpm = (arrays.rpm || []).concat(...sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_rpm',
                         firstRun ? 'Compressor revolutions per minute' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_rpmCompressorMotor/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_rpmCompressorMotor'],
                         (value) => value.value,
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.lnp = (arrays.lnp || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_local_net_pressure_pascal',
                         firstRun ? 'Local network pressure in Pascal' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_localNetPressure/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_localNetPressure'],
                         (value) => value.value,
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.ip = (arrays.ip || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_internal_pressure_pascal',
                         firstRun ? 'internal pressure in Pascal' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_internalPressure/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_internalPressure'],
                         (value) => value.value,
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.adt = (arrays.adt || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_airend_discharge_temperature_celcius',
                         firstRun ? 'Airend discharge temperature in Celcius' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_ADT/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_ADT'],
                         (value) => KelvinToCelciusGaugeValue(value.value),
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.mott = (arrays.mott || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_motor_temperature_celcius',
                         firstRun ? 'Motor temperature in Celcius' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_motorTemperature/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_motorTemperature'],
                         (value) => KelvinToCelciusGaugeValue(value.value),
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.itt = (arrays.itt || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_intake_temperature_celcius',
                         firstRun ? 'Intake temperature in Celcius' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_intakeTemperature/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_intakeTemperature'],
                         (value) => KelvinToCelciusGaugeValue(value.value),
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.out = (arrays.out || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_outlet_temperature_celcius',
                         firstRun ? 'Outlet temperature in Celcius' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_outletTemperature/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_outletTemperature'],
                         (value) => KelvinToCelciusGaugeValue(value.value),
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.il = (arrays.il || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_is_load_info',
                         firstRun ? 'Is load' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_isLoad/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_isLoad'],
                         (value) => BoolToGaugeValue(value.value),
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.ii = (arrays.ii || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_is_idle_info',
                         firstRun ? 'Is idle' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_isIdle/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_isIdle'],
                         (value) => BoolToGaugeValue(value.value),
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.mir = (arrays.mir || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_is_motor_running_info',
                         firstRun ? 'Is motor running' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_isMotorRunning/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_isMotorRunning'],
                         (value) => BoolToGaugeValue(value.value),
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.trt = (arrays.trt || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_total_run_time_seconds',
                         firstRun ? 'Total run time in seconds' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_totalRunTime/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_totalRunTime'],
                         (value) => value.value,
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.tlt = (arrays.tlt || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_total_load_time_seconds',
                         firstRun ? 'Total load time in seconds' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_totalLoadTime/value`
-                            }
-                        ],
-                        null,
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_totalLoadTime'],
+                        (value) => value.value,
                         (value) => value.valid,
                         {compressor: compressorName}
                     ));
@@ -310,240 +235,144 @@ function renderCompressorValues(result: string[], valuePrefix: string) {
                     arrays.ltsaps = (arrays.ltsaps || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_load_time_since_air_producer_start_seconds',
                         firstRun ? 'Load time since air producer start in seconds' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_loadTimeSinceAirProducerStart/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_loadTimeSinceAirProducerStart'],
                         (value) => value.value,
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.wlt = (arrays.wlt || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_weekly_load_time_seconds',
                         firstRun ? 'Weekly load time in seconds' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_weeklyLoadTime/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_weeklyLoadTime'],
                         (value) => value.value,
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.rtos = (arrays.rtos || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_remaining_time_oil_separator_seconds',
                         firstRun ? 'Remaining time oil separator in seconds' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_remainingTimeOilSeparator/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_remainingTimeOilSeparator'],
                         (value) => value.value,
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.rtoc = (arrays.rtoc || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_remaining_time_oil_change_seconds',
                         firstRun ? 'Remaining time oil change in seconds' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_remainingTimeOilChange/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_remainingTimeOilChange'],
                         (value) => value.value,
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.rtof = (arrays.rtof || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_remaining_time_oil_filter_seconds',
                         firstRun ? 'Remaining time oil filter in seconds' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_remainingTimeOilFilter/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_remainingTimeOilFilter'],
                         (value) => value.value,
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.rtaf = (arrays.rtaf || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_remaining_time_air_filter_seconds',
                         firstRun ? 'Remaining time air filter in seconds' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_remainingTimeAirFilter/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_remainingTimeAirFilter'],
                         (value) => value.value,
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.rtv = (arrays.rtv || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_remaining_time_valve_seconds',
                         firstRun ? 'Remaining time valve in seconds' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_remainingTimeValve/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_remainingTimeValve'],
                         (value) => value.value,
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.rtcpl = (arrays.rtcpl || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_remaining_time_coupling_seconds',
                         firstRun ? 'Remaining time coupling in seconds' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_remainingTimeCoupling/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_remainingTimeCoupling'],
                         (value) => value.value,
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.rtmb = (arrays.rtmb || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_remaining_time_motor_bearing_seconds',
                         firstRun ? 'Remaining time motor bearing in seconds' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_remainingTimeMotorBearing/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_remainingTimeMotorBearing'],
                         (value) => value.value,
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.rtel = (arrays.rtel || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_remaining_time_electric_seconds',
                         firstRun ? 'Remaining time electric in seconds' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_remainingTimeElectric/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_remainingTimeElectric'],
                         (value) => value.value,
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.rtlub = (arrays.rtlub || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_remaining_time_lubrication_seconds',
                         firstRun ? 'Remaining time lubrication in seconds' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_remainingTimeLubrication/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_remainingTimeLubrication'],
                         (value) => value.value,
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.mtt = (arrays.mtt || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_maintenance_timer_seconds',
                         firstRun ? 'Maintenance timer in seconds' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_remaingTimeNextMaintenance/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'states', 'SAM2_remaingTimeNextMaintenance'],
                         (value) => value.value,
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.pw = (arrays.pw || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_power_consumption_watts',
                         firstRun ? 'Power consumption in Watt' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_powerConsumption/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'states', 'SAM2_powerConsumption'],
                         (value) => value.value,
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.pwcum = (arrays.pwcum || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_power_consumption_cumulative_watts',
                         firstRun ? 'Power consumption cumulative in Watt' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_powerConsumptionCumulative/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'states', 'SAM2_powerConsumptionCumulative'],
                         (value) => value.value,
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.fad = (arrays.fad || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_free_air_delivery_cubicmetersperhour',
                         firstRun ? 'Volumetric flow rate (FAD) in Cubic metre / hour' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_freeAirDelivery/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'states', 'SAM2_freeAirDelivery'],
                         (value) => CubicMetrePerMinuteToCubicMetrePerHourGaugeValue(value.value),
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
                     arrays.fadcum = (arrays.fadcum || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
                         valuePrefix + 'compressor_free_air_delivery_cumulative_cubicmetersperhour',
                         firstRun ? 'Volumetric flow rate (FAD) cumulative in Cubic metre / hour' : null,
-                        [
-                            'si/currentProcessImage',
-                            {
-                                attribute: 'path',
-                                value: `/image/AIR_PRODUCER/${parseInt(key, 10)}/inputs/SAM2_freeAirDeliveryCumulative/value`
-                            }
-                        ],
+                        ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'states', 'SAM2_freeAirDeliveryCumulative'],
                         (value) => value.value,
-                        null,
+                        (value) => value.valid,
                         {compressor: compressorName}
                     ));
 
@@ -553,277 +382,6 @@ function renderCompressorValues(result: string[], valuePrefix: string) {
                 }
             }
         }
-
-        // console.log(sigmaAirManagerBackend.currentValues['si/currentProcessImage']);
-
-
-        /*  for (const key in sigmaAirManagerBackend.currentValues['si/currentProcessImage'].image.AIR_PRODUCER) {
-              if (sigmaAirManagerBackend.currentValues['si/currentProcessImage'].image.AIR_PRODUCER.hasOwnProperty(key)) {
-                  try {
-                      const compressorName = sigmaAirManagerBackend
-                          .currentValues['si/getConfiguration']
-                          .result.AIR_PRODUCER[key]
-                          .parameters.modelShortName;
-
-                      arrays.rpm = (arrays.rpm || []).concat(...sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_rpm',
-                          firstRun ? 'Compressor revolutions per minute' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_rpmCompressorMotor'],
-                          (value) => value.value,
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.lnp = (arrays.lnp || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_local_net_pressure_pascal',
-                          firstRun ? 'Local network pressure in Pascal' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_localNetPressure'],
-                          (value) => value.value,
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.ip = (arrays.ip || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_internal_pressure_pascal',
-                          firstRun ? 'internal pressure in Pascal' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_internalPressure'],
-                          (value) => value.value,
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.adt = (arrays.adt || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_airend_discharge_temperature_celcius',
-                          firstRun ? 'Airend discharge temperature in Celcius' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_ADT'],
-                          (value) => KelvinToCelciusGaugeValue(value.value),
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.mott = (arrays.mott || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_motor_temperature_celcius',
-                          firstRun ? 'Motor temperature in Celcius' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_motorTemperature'],
-                          (value) => KelvinToCelciusGaugeValue(value.value),
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.itt = (arrays.itt || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_intake_temperature_celcius',
-                          firstRun ? 'Intake temperature in Celcius' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_intakeTemperature'],
-                          (value) => KelvinToCelciusGaugeValue(value.value),
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.out = (arrays.out || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_outlet_temperature_celcius',
-                          firstRun ? 'Outlet temperature in Celcius' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_outletTemperature'],
-                          (value) => KelvinToCelciusGaugeValue(value.value),
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.il = (arrays.il || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_is_load_info',
-                          firstRun ? 'Is load' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_isLoad'],
-                          (value) => BoolToGaugeValue(value.value),
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.ii = (arrays.ii || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_is_idle_info',
-                          firstRun ? 'Is idle' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_isIdle'],
-                          (value) => BoolToGaugeValue(value.value),
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.mir = (arrays.mir || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_is_motor_running_info',
-                          firstRun ? 'Is motor running' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_isMotorRunning'],
-                          (value) => BoolToGaugeValue(value.value),
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.trt = (arrays.trt || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_total_run_time_seconds',
-                          firstRun ? 'Total run time in seconds' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_totalRunTime'],
-                          (value) => value.value,
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.tlt = (arrays.tlt || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_total_load_time_seconds',
-                          firstRun ? 'Total load time in seconds' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_totalLoadTime'],
-                          (value) => value.value,
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-
-                      arrays.ltsaps = (arrays.ltsaps || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_load_time_since_air_producer_start_seconds',
-                          firstRun ? 'Load time since air producer start in seconds' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_loadTimeSinceAirProducerStart'],
-                          (value) => value.value,
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.wlt = (arrays.wlt || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_weekly_load_time_seconds',
-                          firstRun ? 'Weekly load time in seconds' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_weeklyLoadTime'],
-                          (value) => value.value,
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.rtos = (arrays.rtos || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_remaining_time_oil_separator_seconds',
-                          firstRun ? 'Remaining time oil separator in seconds' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_remainingTimeOilSeparator'],
-                          (value) => value.value,
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.rtoc = (arrays.rtoc || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_remaining_time_oil_change_seconds',
-                          firstRun ? 'Remaining time oil change in seconds' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_remainingTimeOilChange'],
-                          (value) => value.value,
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.rtof = (arrays.rtof || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_remaining_time_oil_filter_seconds',
-                          firstRun ? 'Remaining time oil filter in seconds' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_remainingTimeOilFilter'],
-                          (value) => value.value,
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.rtaf = (arrays.rtaf || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_remaining_time_air_filter_seconds',
-                          firstRun ? 'Remaining time air filter in seconds' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_remainingTimeAirFilter'],
-                          (value) => value.value,
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.rtv = (arrays.rtv || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_remaining_time_valve_seconds',
-                          firstRun ? 'Remaining time valve in seconds' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_remainingTimeValve'],
-                          (value) => value.value,
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.rtcpl = (arrays.rtcpl || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_remaining_time_coupling_seconds',
-                          firstRun ? 'Remaining time coupling in seconds' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_remainingTimeCoupling'],
-                          (value) => value.value,
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.rtmb = (arrays.rtmb || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_remaining_time_motor_bearing_seconds',
-                          firstRun ? 'Remaining time motor bearing in seconds' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_remainingTimeMotorBearing'],
-                          (value) => value.value,
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.rtel = (arrays.rtel || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_remaining_time_electric_seconds',
-                          firstRun ? 'Remaining time electric in seconds' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_remainingTimeElectric'],
-                          (value) => value.value,
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.rtlub = (arrays.rtlub || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_remaining_time_lubrication_seconds',
-                          firstRun ? 'Remaining time lubrication in seconds' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'inputs', 'SAM2_remainingTimeLubrication'],
-                          (value) => value.value,
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.mtt = (arrays.mtt || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_maintenance_timer_seconds',
-                          firstRun ? 'Maintenance timer in seconds' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'states', 'SAM2_remaingTimeNextMaintenance'],
-                          (value) => value.value,
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.pw = (arrays.pw || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_power_consumption_watts',
-                          firstRun ? 'Power consumption in Watt' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'states', 'SAM2_powerConsumption'],
-                          (value) => value.value,
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.pwcum = (arrays.pwcum || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_power_consumption_cumulative_watts',
-                          firstRun ? 'Power consumption cumulative in Watt' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'states', 'SAM2_powerConsumptionCumulative'],
-                          (value) => value.value,
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.fad = (arrays.fad || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_free_air_delivery_cubicmetersperhour',
-                          firstRun ? 'Volumetric flow rate (FAD) in Cubic metre / hour' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'states', 'SAM2_freeAirDelivery'],
-                          (value) => CubicMetrePerMinuteToCubicMetrePerHourGaugeValue(value.value),
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      arrays.fadcum = (arrays.fadcum || []).concat(sigmaAirManagerBackend.renderAsPrometheusGauge(
-                          valuePrefix + 'compressor_free_air_delivery_cumulative_cubicmetersperhour',
-                          firstRun ? 'Volumetric flow rate (FAD) cumulative in Cubic metre / hour' : null,
-                          ['si/currentProcessImage', 'image', 'AIR_PRODUCER', parseInt(key, 10), 'states', 'SAM2_freeAirDeliveryCumulative'],
-                          (value) => value.value,
-                          (value) => value.valid,
-                          {compressor: compressorName}
-                      ));
-
-                      firstRun = false;
-                  } catch (e) {
-                      console.error(e);
-                  }
-              }*/
-
 
         for (const key in arrays) {
             if (arrays.hasOwnProperty(key)) {
