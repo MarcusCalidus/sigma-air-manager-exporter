@@ -159,8 +159,38 @@ export class SigmaAirManagerBackend {
             case 42:
                 if (decodedMessage.parsed) {
                     if (decodedMessage.parsed.metric === 'si/currentProcessImage') {
+                        if (!this.currentValues[decodedMessage.parsed.metric]) {
+                            this.currentValues[decodedMessage.parsed.metric] = {}
+                        }
+
                         if (decodedMessage.parsed.data.fullImg === true) {
                             this.currentValues[decodedMessage.parsed.metric] = decodedMessage.parsed.data;
+                        } else if (Array.isArray(decodedMessage.parsed.data)) {
+                            decodedMessage.parsed.data.forEach(
+                                item => {
+                                    if (item.op === 'replace') {
+                                        this.currentValues[decodedMessage.parsed.metric].fullImg = false;
+                                        let path: string[] = item.path.split('/');
+                                        path.splice(0,1);
+                                        let object = this.currentValues[decodedMessage.parsed.metric];
+                                        path.forEach(
+                                            (key, idx, arr)  => {
+                                                if (idx < arr.length - 1) {
+                                                    if (!object.hasOwnProperty(key)) {
+                                                        object[key] = {};
+                                                    }
+                                                    object = object[key];
+                                                } else {
+                                                    object[key] = item.value;
+                                                }
+
+                                            }
+                                        )
+
+                                    }
+                                }
+                            );
+                            console.log(JSON.stringify(this.currentValues[decodedMessage.parsed.metric]));
                         }
                     } else {
                         this.currentValues[decodedMessage.parsed.metric] = decodedMessage.parsed.data;
