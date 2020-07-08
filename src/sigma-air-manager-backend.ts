@@ -190,7 +190,6 @@ export class SigmaAirManagerBackend {
                                     }
                                 }
                             );
-                            console.log(JSON.stringify(this.currentValues[decodedMessage.parsed.metric]));
                         }
                     } else {
                         this.currentValues[decodedMessage.parsed.metric] = decodedMessage.parsed.data;
