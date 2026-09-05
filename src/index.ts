@@ -1,6 +1,6 @@
 import express from 'express';
 import {serverPort} from './config';
-import {SigmaAirManagerBackend} from "./sigma-air-manager-backend";
+import {SigmaAirManagerBackend} from './sigma-air-manager-backend';
 import moment from 'moment';
 
 export const app = express();
@@ -16,7 +16,7 @@ function KelvinToCelciusGaugeValue(value: number) {
 }
 
 function BoolToGaugeValue(value: any) {
-    return !!value ? '1' : '0';
+    return value ? '1' : '0';
 }
 
 function renderSysMonValues(result: string[], valuePrefix: string) {
@@ -27,7 +27,7 @@ function renderSysMonValues(result: string[], valuePrefix: string) {
         (value) => {
             const diffValue = moment(value.timestamp)
                 .utcOffset(value.utcOffset)
-                .diff(moment(), "minute", true);
+                .diff(moment(), 'minute', true);
 
             if (diffValue < -1) {
                 console.warn('WARNING! Timestamp of Air Manager lies in the past by ' + Math.round(Math.abs(diffValue)) + ' minutes.');
@@ -116,7 +116,7 @@ function renderCompressorValues(result: string[], valuePrefix: string) {
     if ((sigmaAirManagerBackend.currentValues['si/currentProcessImage'] || {}).image) {
         let firstRun = true;
         for (const key in sigmaAirManagerBackend.currentValues['si/currentProcessImage'].image.AIR_PRODUCER) {
-            if (sigmaAirManagerBackend.currentValues['si/currentProcessImage'].image.AIR_PRODUCER.hasOwnProperty(key)) {
+            if (Object.prototype.hasOwnProperty.call(sigmaAirManagerBackend.currentValues['si/currentProcessImage'].image.AIR_PRODUCER, key)) {
                 try {
                     const compressorName = sigmaAirManagerBackend
                         .currentValues['si/getConfiguration']
@@ -384,7 +384,7 @@ function renderCompressorValues(result: string[], valuePrefix: string) {
         }
 
         for (const key in arrays) {
-            if (arrays.hasOwnProperty(key)) {
+            if (Object.prototype.hasOwnProperty.call(arrays, key)) {
                 result.push(...arrays[key])
             }
         }
@@ -402,7 +402,7 @@ app.get('/values', (req, res) => {
         ['internal/last_timestamp'],
         (value) => {
             const diffValue = moment(value)
-                .diff(moment(), "minute", true);
+                .diff(moment(), 'minute', true);
 
             if (diffValue < -1) {
                 return '0';
