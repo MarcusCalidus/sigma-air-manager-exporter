@@ -1,4 +1,6 @@
 /dist
 /node_modules
 /src/config*.ts
+# ...but the type declaration for the generated config is part of the repository
+!/src/config.d.ts
 /.idea

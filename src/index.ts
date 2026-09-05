@@ -3,7 +3,7 @@ import {serverPort} from './config';
 import {SigmaAirManagerBackend} from "./sigma-air-manager-backend";
 import moment from 'moment';
 
-const app = express();
+export const app = express();
 const sigmaAirManagerBackend = new SigmaAirManagerBackend();
 
 app.get('/valuesJson', (req, res) => {
@@ -419,8 +419,10 @@ app.get('/values', (req, res) => {
     res.end(result.join('\n') + '\n');
 });
 
-// start the Express server
-app.listen(serverPort, () => {
-    console.log(`server started at http://localhost:${serverPort}`);
-    sigmaAirManagerBackend.initialize()
-});
+// start the Express server, unless this module was imported (e.g. by tests) rather than run directly
+if (require.main === module) {
+    app.listen(serverPort, () => {
+        console.log(`server started at http://localhost:${serverPort}`);
+        sigmaAirManagerBackend.initialize()
+    });
+}
