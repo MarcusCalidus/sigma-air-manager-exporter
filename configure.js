@@ -1,81 +1,53 @@
-var Prompt = require('prompt-input');
-var fs = require('fs');
-var path = require('path');
+// Generates src/config.ts from four prompts. Uses node:readline rather than a
+// package so the setup step adds no dependencies of its own.
+const readline = require('readline/promises');
+const {stdin, stdout} = require('process');
+const fs = require('fs');
+const path = require('path');
 
-var promptConfig = new Prompt({
-    name: 'overwrite',
-    message: 'Do you want to overwrite the config present in src/config.ts [y/N]?',
-    validate: function (str) {
-        if (!str || /(y|n|Y|N|\w)/.test(str)) {
-            return true;
-        } else {
-            return 'invalid value';
-        }
-    }
-});
+const VALID_IP = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/;
+const VALID_HOSTNAME = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/;
 
-var promptHost = new Prompt({
-    name: 'host',
-    message: 'Please enter the host name or ip of the Sigma Air Manager',
-    validate: function (str) {
-        let ValidIpAddressRegex = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/;
-        let ValidHostnameRegex = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/;
+const configPath = path.join(__dirname, 'src', 'config.ts');
 
-        if (str && (ValidIpAddressRegex.test(str) || ValidHostnameRegex.test(str))) {
-            return true;
-        } else {
-            return 'invalid value';
-        }
-    }
-});
+async function main() {
+    console.log('Welcome to the configuration of the Sigma Air Manager Prometheus exporter.');
 
-var promptUser = new Prompt({
-    name: 'user',
-    message: 'Please enter the user name for the Sigma Air Manager'
-});
-
-var promptPassword = new Prompt({
-    name: 'password',
-    message: 'Please enter the user\'s password for the Sigma Air Manager'
-});
-
-console.log('Welcome to the configuration of the Sigma Air Manager Prometheus exporter.');
-
-function doPromptHost() {
-    promptHost.ask((answer) => {
-        newConfig.push(`export const sigmaAirManagerHost = '${answer}';`);
-        newConfig.push(`export const sigmaAirManagerPort = 80;`);
-        return doPromptUser();
-    });
-}
-
-function doPromptUser() {
-    promptUser.ask((answer) => {
-        newConfig.push(`export const sigmaAirManagerUser = '${answer}';`);
-        return doPromptPassword();
-    });
-}
-
-function doPromptPassword() {
-    promptPassword.ask((answer) => {
-        newConfig.push(`export const sigmaAirManagerPassword = '${answer}';`);
-        fs.writeFileSync(path.join(__dirname, 'src', 'config.ts'),
-            newConfig.join('\n'));
-    });
-}
-
-
-var newConfig = ['export const serverPort=9693;'];
-
-if (fs.existsSync(path.join(__dirname, 'src', 'config.ts'))) {
-    promptConfig.ask(
-        (answer) => {
-            if (answer && /^([yY])$/
-                .test(answer)) {
-
-                doPromptHost();
+    const rl = readline.createInterface({input: stdin, output: stdout});
+    try {
+        if (fs.existsSync(configPath)) {
+            const overwrite = await rl.question('Do you want to overwrite the config present in src/config.ts [y/N]? ');
+            if (!/^[yY]$/.test(overwrite.trim())) {
+                return;
             }
-        })
-} else {
-    doPromptHost();
+        }
+
+        let host = '';
+        while (!host) {
+            const answer = (await rl.question('Please enter the host name or ip of the Sigma Air Manager: ')).trim();
+            if (VALID_IP.test(answer) || VALID_HOSTNAME.test(answer)) {
+                host = answer;
+            } else {
+                console.log('invalid value');
+            }
+        }
+
+        const user = await rl.question('Please enter the user name for the Sigma Air Manager: ');
+        const password = await rl.question('Please enter the user\'s password for the Sigma Air Manager: ');
+
+        fs.writeFileSync(configPath, [
+            'export const serverPort=9693;',
+            `export const sigmaAirManagerHost = '${host}';`,
+            'export const sigmaAirManagerPort = 80;',
+            `export const sigmaAirManagerUser = '${user}';`,
+            `export const sigmaAirManagerPassword = '${password}';`
+        ].join('\n') + '\n');
+    } finally {
+        rl.close();
+    }
 }
+
+main().catch(err => {
+    console.error(err);
+    process.exit(1);
+});

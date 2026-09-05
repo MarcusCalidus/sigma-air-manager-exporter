@@ -1,10 +1,10 @@
-import encHex from "crypto-js/enc-hex";
-import sha256 from "crypto-js/sha256";
-import * as querystring from "querystring";
-import * as http from "http";
+import encHex from 'crypto-js/enc-hex';
+import sha256 from 'crypto-js/sha256';
+import * as querystring from 'querystring';
+import * as http from 'http';
 import {Observable} from 'rxjs';
-import WebSocket, {ClientOptions} from "ws";
-import {sigmaAirManagerHost, sigmaAirManagerPassword, sigmaAirManagerPort, sigmaAirManagerUser} from "./config";
+import WebSocket, {ClientOptions} from 'ws';
+import {sigmaAirManagerHost, sigmaAirManagerPassword, sigmaAirManagerPort, sigmaAirManagerUser} from './config';
 import Timeout = NodeJS.Timeout;
 
 interface SessionInfo {
@@ -39,39 +39,39 @@ export class SigmaAirManagerBackend {
 
     static syslogMessage(level: string = 'debug', message: string = 'Socket.IO upgrade to transport websocket', timestamp = Date.now()) {
         return [
-            "syslog", {
-                "level": level,
-                "message": message,
-                "timestamp": timestamp
+            'syslog', {
+                'level': level,
+                'message': message,
+                'timestamp': timestamp
             }]
     }
 
     static initReady() {
-        return ["initReady"];
+        return ['initReady'];
     }
 
     static joinRoom(room: string) {
-        return ["joinroom", room];
+        return ['joinroom', room];
     }
 
     static toMedi(endpoint: string, target: string, parameters: string, msgId: number) {
         return [
-            "tomedi",
+            'tomedi',
             {
-                "endpoint": endpoint,
-                "target": target,
-                "parameters": parameters,
-                "msgId": msgId
+                'endpoint': endpoint,
+                'target': target,
+                'parameters': parameters,
+                'msgId': msgId
             }
         ]
     }
 
     static heartbeat() {
-        return ["hmiHeartbeat", Date.now()];
+        return ['hmiHeartbeat', Date.now()];
     }
 
     static alive() {
-        return ["alive"];
+        return ['alive'];
     }
 
     encodeWebSocketMessage(prefix: number, object?: any): string {
@@ -170,13 +170,13 @@ export class SigmaAirManagerBackend {
                                 item => {
                                     if (item.op === 'replace') {
                                         this.currentValues[decodedMessage.parsed.metric].fullImg = false;
-                                        let path: string[] = item.path.split('/');
+                                        const path: string[] = item.path.split('/');
                                         path.splice(0,1);
                                         let object = this.currentValues[decodedMessage.parsed.metric];
                                         path.forEach(
                                             (key, idx, arr)  => {
                                                 if (idx < arr.length - 1) {
-                                                    if (!object.hasOwnProperty(key)) {
+                                                    if (!Object.prototype.hasOwnProperty.call(object, key)) {
                                                         object[key] = {};
                                                     }
                                                     object = object[key];
@@ -326,7 +326,7 @@ export class SigmaAirManagerBackend {
                             if (res.headers.location !== '/HMI') {
                                 subscriber.error('invalid redirect to ' + res.headers.location + ' expected /HMI. Check credentials')
                             } else {
-                                this.cookies = res.headers["set-cookie"];
+                                this.cookies = res.headers['set-cookie'];
                                 subscriber.next();
                                 subscriber.complete();
                             }
@@ -403,7 +403,7 @@ export class SigmaAirManagerBackend {
         if (labels) {
             const labelArray: string[] = [];
             for (const key in labels) {
-                if (labels.hasOwnProperty(key)) {
+                if (Object.prototype.hasOwnProperty.call(labels, key)) {
                     labelArray.push(key + '="' + escape(labels[key]) + '"')
                 }
             }
@@ -411,7 +411,7 @@ export class SigmaAirManagerBackend {
         }
 
         if (!valueValidityCheckFn || valueValidityCheckFn(object)) {
-            if (!!valueTransfomerFn) {
+            if (valueTransfomerFn) {
                 result.push(name + labelsStr + ' ' + valueTransfomerFn(object))
             } else {
                 result.push(name + labelsStr + ' ' + object.toString())
